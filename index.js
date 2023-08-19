@@ -8,10 +8,10 @@ app.use(bodyParser.json());
 
 const pool = new Pool({
   user     : process.env.DB_USERNAME,
-  host     : process.env.HOSTNAME,
+  host     : process.env.DB_HOSTNAME,
   database : process.env.DB_NAME,
-  password : process.env.PASSWORD,
-  port     : process.env.PORT
+  password : process.env.DB_PASSWORD,
+  port     : process.env.DB_PORT
 });
 
 pool.connect(function(err) {
@@ -61,7 +61,7 @@ app.post('/set_licenca', async (req, res) => {
 app.get('/get_result', async (req, res) => {
     try {
       const { token } = req.query;
-    
+      
       if (!token) {
         res.status(400).send('Token não fornecido.');
         return;
