@@ -1,29 +1,39 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
+require('dotenv').config()
 
 const app = express();
 app.use(bodyParser.json());
 
-// Configurações do banco de dados
 const pool = new Pool({
-  user: 'assessorpublico',
-  host: 'localhost',
-  database: 'roleta',
-  password: '2arquiv3',
-  port: 5434, 
+  user     : process.env.DB_USERNAME,
+  host     : process.env.HOSTNAME,
+  database : process.env.DB_NAME,
+  password : process.env.PASSWORD,
+  port     : process.env.PORT
 });
+
+pool.connect(function(err) {
+  if (err) {
+    console.error('Error. Database connection failed: ' + err.stack);
+    return;
+  }
+
+  console.log('Connected to database.');
+});
+
+//pool.end();
 
 // Rota 1 - Inserir registro na tabela "Resultado"
 app.post('/set_result', async (req, res) => {
   try {
-    const { valor } = req.query;
-    
+    const { valor, aposta, gale } = req.query;
     const dataHora = new Date().toUTCString(); // Obtém a data e hora no formato adequado
 
     await pool.query(
-      'INSERT INTO Resultado (valor, data) VALUES ($1, $2)',
-      [valor, dataHora]
+      'INSERT INTO Resultado (valor, aposta, gale, data) VALUES ($1, $2, $3, $4)',
+      [valor, aposta, gale, dataHora]
     );
 
     res.status(201).send('Registro inserido com sucesso.');
@@ -40,7 +50,7 @@ app.post('/set_licenca', async (req, res) => {
 
     await pool.query('INSERT INTO Licenca (token) VALUES ($1)', [token]);
 
-    res.status(201).send('Token inserido com sucesso.');
+    res.status(201).send('Token inserido com sucesso');
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao inserir token.');
