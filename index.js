@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
+const moment = require('moment-timezone');
+
 require('dotenv').config()
 
 const app = express();
@@ -29,7 +31,7 @@ pool.connect(function(err) {
 app.post('/set_result', async (req, res) => {
   try {
     const { valor, aposta, gale } = req.query;
-    const dataHora = new Date().toUTCString(); // Obtém a data e hora no formato adequado
+    const dataHora = moment.tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss');
 
     await pool.query(
       'INSERT INTO Resultado (valor, aposta, gale, data) VALUES ($1, $2, $3, $4)',
@@ -61,7 +63,7 @@ app.post('/set_licenca', async (req, res) => {
 app.get('/get_result', async (req, res) => {
     try {
       const { token } = req.query;
-      
+
       if (!token) {
         res.status(400).send('Token não fornecido.');
         return;
